@@ -1,92 +1,71 @@
+// pages/index.js
 'use client';
 
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { useRouter } from "next/navigation";
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import WalletConnectProvider from '@walletconnect/web3-provider';
+import Web3 from 'web3';
 
-export default function WalletClicker() {
-  const router = useRouter();
+export default function Home() {
+  const [connected, setConnected] = useState(false);
+  const [walletAddress, setWalletAddress] = useState('');
+  const [bananas, setBananas] = useState(3499);
+  const [harvests, setHarvests] = useState(6);
+  const [progress, setProgress] = useState(200);
 
-  const phrases = [
-    "Dünyanın en güzel kadını?",
-    "Dünyanın en tatlı kadını?",
-    "Semih'in Karısı",
-    "Ecem'in gözbebeği",
-    "Babasının kızı",
-    "Annesinin fıstığı",
-    "Apakların en güzeli"
-  ];
-
-  const [index, setIndex] = useState(0);
-  const [showBurcu, setShowBurcu] = useState(false);
-  const [burcuSize, setBurcuSize] = useState(20);
-  const [telegramUser, setTelegramUser] = useState(null);
+  const connectWallet = async () => {
+    if (typeof window.ethereum !== 'undefined') {
+      try {
+        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+        setWalletAddress(accounts[0]);
+        setConnected(true);
+      } catch (error) {
+        console.error('Connection error:', error);
+      }
+    } else {
+      alert('Please install MetaMask');
+    }
+  };
 
   useEffect(() => {
-    const user = window?.Telegram?.WebApp?.initDataUnsafe?.user;
-    console.log("🧪 Telegram User:", user);
-    if (user) {
-      setTelegramUser(user);
-    }
+    connectWallet();
   }, []);
 
-  const handleClick = async () => {
-    if (!telegramUser) {
-      alert("Lütfen uygulamayı Telegram içinden açın!");
-      return;
-    }
-
-    if (!showBurcu) {
-      setShowBurcu(true);
-    } else {
-      setBurcuSize((prev) => prev + 6);
-    }
-
-    if (index < phrases.length - 1) {
-      setIndex(index + 1);
-    }
-
-    try {
-      const res = await axios.post("https://luckwallet-api.onrender.com/click", {
-        telegram_id: telegramUser.id,
-        first_name: telegramUser.first_name
-      });
-      console.log("✅ API Yanıtı:", res.data);
-    } catch (err) {
-      console.error("❌ API Hatası:", err);
-    }
-  };
-
-  const goToLeaderboard = () => {
-    router.push("/leaderboard");
-  };
-
   return (
-    <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
-      <h1 className="text-2xl font-bold mb-6 text-center">🍀 Luck Wallet Club</h1>
-
-      <div
-        onClick={handleClick}
-        className="bg-yellow-300 hover:bg-yellow-400 active:bg-yellow-500 cursor-pointer shadow-lg rounded-2xl p-10 mb-4 transition-all select-none text-center text-black text-lg font-semibold"
-      >
-        {phrases[index]}
-      </div>
-
-      {showBurcu && (
-        <div
-          className="font-bold text-red-600 mt-4 transition-all"
-          style={{ fontSize: `${burcuSize}px` }}
-        >
-          Burcu
+    <div className="min-h-screen bg-yellow-300 flex flex-col items-center justify-center text-black font-sans">
+      <div className="w-[90%] max-w-sm bg-white rounded-xl shadow-lg p-4 relative">
+        <div className="flex justify-between items-center mb-4">
+          <div className="text-sm text-gray-600">Remaining Harvest</div>
+          <button className="bg-purple-600 text-white px-6 py-2 rounded-xl font-bold">Harvest</button>
         </div>
+        <div className="text-lg font-bold text-center">🍌 {bananas}</div>
+        <div className="relative w-full mt-4 flex items-center justify-center">
+          <div className="w-40 h-40 rounded-full border-8 border-yellow-200 flex items-center justify-center relative">
+            <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              {/* Replace with actual wallet image later */}
+              <Image src="/wallet.png" alt="Wallet" width={60} height={60} />
+            </div>
+            <svg className="absolute top-0 left-0 w-full h-full">
+              <circle cx="50%" cy="50%" r="72" stroke="#9333ea" strokeWidth="8" fill="none" strokeDasharray="452" strokeDashoffset={452 - (progress / 900) * 452} />
+            </svg>
+          </div>
+        </div>
+        <div className="text-center mt-2 font-bold">{progress}/900</div>
+        <div className="flex justify-between items-center mt-4 bg-yellow-100 px-4 py-2 rounded-xl">
+          <div>Claim your Banana in</div>
+          <div className="font-mono">07:59:59</div>
+        </div>
+        <div className="flex justify-around mt-6 text-sm">
+          <div className="text-purple-700">🏠 Home</div>
+          <div className="text-gray-700">📦 Tasks</div>
+          <div className="text-gray-700">🧑‍🤝‍🧑 Apes</div>
+        </div>
+      </div>
+      {!connected && (
+        <button className="mt-6 bg-purple-600 text-white px-6 py-2 rounded-xl font-bold" onClick={connectWallet}>
+          Connect Wallet
+        </button>
       )}
-
-      <button
-        onClick={goToLeaderboard}
-        className="mt-8 px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-yellow-200 transition-all shadow"
-      >
-        🏆 Lider Tablosu
-      </button>
     </div>
   );
 }
