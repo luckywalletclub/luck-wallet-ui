@@ -1,8 +1,12 @@
 'use client';
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 export default function WalletClicker() {
+  const router = useRouter();
+
   const phrases = [
     "Dünyanın en güzel kadını?",
     "Dünyanın en tatlı kadını?",
@@ -16,17 +20,42 @@ export default function WalletClicker() {
   const [index, setIndex] = useState(0);
   const [showBurcu, setShowBurcu] = useState(false);
   const [burcuSize, setBurcuSize] = useState(20);
+  const [telegramUser, setTelegramUser] = useState(null);
 
-  const handleClick = () => {
+  useEffect(() => {
+    const user = window?.Telegram?.WebApp?.initDataUnsafe?.user || {
+      id: 123456789,
+      first_name: "Semih (Debug)"
+    };
+    setTelegramUser(user);
+  }, []);
+
+  const handleClick = async () => {
+    if (!telegramUser) return;
+
     if (!showBurcu) {
-      setShowBurcu(true); // ilk tıklamada göster
+      setShowBurcu(true);
     } else {
-      setBurcuSize((prev) => prev + 20); // her tıklamada büyüt
+      setBurcuSize((prev) => prev + 6);
     }
 
     if (index < phrases.length - 1) {
-      setIndex(index + 1); // metni sırayla göster
+      setIndex(index + 1);
     }
+
+    try {
+      const res = await axios.post("http://localhost:3001/click", {
+        telegram_id: telegramUser.id,
+        first_name: telegramUser.first_name
+      });
+      console.log("✅ API Yanıtı:", res.data);
+    } catch (err) {
+      console.error("❌ API Hatası:", err);
+    }
+  };
+
+  const goToLeaderboard = () => {
+    router.push("/leaderboard");
   };
 
   return (
@@ -48,6 +77,14 @@ export default function WalletClicker() {
           Burcu
         </div>
       )}
+
+      {/* 🏆 Lider Tablosu Butonu */}
+      <button
+        onClick={goToLeaderboard}
+        className="mt-8 px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-yellow-200 transition-all shadow"
+      >
+        🏆 Lider Tablosu
+      </button>
     </div>
   );
 }
