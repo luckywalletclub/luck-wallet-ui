@@ -47,7 +47,7 @@ export default function WalletClicker() {
     }
 
     try {
-      const res = await axios.post("http://localhost:3001/click", {
+      const res = await axios.post("https://luckwallet-api.onrender.com/click", {
         telegram_id: telegramUser.id,
         first_name: telegramUser.first_name
       });

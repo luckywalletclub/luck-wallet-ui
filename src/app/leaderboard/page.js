@@ -11,7 +11,7 @@ export default function LeaderboardPage() {
   useEffect(() => {
     const fetchLeaderboard = async () => {
       try {
-        const res = await axios.get("http://localhost:3001/leaderboard");
+        const res = await axios.get("https://luckwallet-api.onrender.com/leaderboard");
         setUsers(res.data);
       } catch (err) {
         console.error("Leaderboard API hatası:", err);
