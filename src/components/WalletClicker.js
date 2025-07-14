@@ -23,15 +23,18 @@ export default function WalletClicker() {
   const [telegramUser, setTelegramUser] = useState(null);
 
   useEffect(() => {
-    const user = window?.Telegram?.WebApp?.initDataUnsafe?.user || {
-      id: 123456789,
-      first_name: "Semih (Debug)"
-    };
-    setTelegramUser(user);
+    const user = window?.Telegram?.WebApp?.initDataUnsafe?.user;
+    console.log("🧪 Telegram User:", user);
+    if (user) {
+      setTelegramUser(user);
+    }
   }, []);
 
   const handleClick = async () => {
-    if (!telegramUser) return;
+    if (!telegramUser) {
+      alert("Lütfen uygulamayı Telegram içinden açın!");
+      return;
+    }
 
     if (!showBurcu) {
       setShowBurcu(true);
@@ -78,7 +81,6 @@ export default function WalletClicker() {
         </div>
       )}
 
-      {/* 🏆 Lider Tablosu Butonu */}
       <button
         onClick={goToLeaderboard}
         className="mt-8 px-6 py-3 bg-white text-black font-bold rounded-xl hover:bg-yellow-200 transition-all shadow"
