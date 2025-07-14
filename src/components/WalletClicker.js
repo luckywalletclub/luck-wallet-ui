@@ -1,55 +1,51 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export default function WalletClicker() {
-  const [telegramUser, setTelegramUser] = useState(null);
-  const [points, setPoints] = useState(0);
-  const [lastClick, setLastClick] = useState(null);
-  const [cooldown, setCooldown] = useState(0);
+  const phrases = [
+    "Dünyanın en güzel kadını?",
+    "Dünyanın en tatlı kadını?",
+    "Semih'in Karısı",
+    "Ecem'in gözbebeği",
+    "Babasının kızı",
+    "Annesinin fıstığı",
+    "Apakların en güzeli"
+  ];
 
-  useEffect(() => {
-    if (window?.Telegram?.WebApp?.initDataUnsafe?.user) {
-      setTelegramUser(window.Telegram.WebApp.initDataUnsafe.user);
+  const [index, setIndex] = useState(0);
+  const [showBurcu, setShowBurcu] = useState(false);
+  const [burcuSize, setBurcuSize] = useState(20);
+
+  const handleClick = () => {
+    if (!showBurcu) {
+      setShowBurcu(true); // ilk tıklamada göster
+    } else {
+      setBurcuSize((prev) => prev + 20); // her tıklamada büyüt
     }
-  }, []);
 
-  const handleClick = async () => {
-    const now = Date.now();
-    if (cooldown > 0) return;
-
-    const reward = [0, 5, 10, 20, 50][Math.floor(Math.random() * 5)];
-    setPoints(points + reward);
-    setLastClick(now);
-    setCooldown(0);
-
-    let sec = 10;
-    const interval = setInterval(() => {
-      sec -= 1;
-      setCooldown(sec);
-      if (sec === 0) clearInterval(interval);
-    }, 1000);
+    if (index < phrases.length - 1) {
+      setIndex(index + 1); // metni sırayla göster
+    }
   };
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-4">
-
       <h1 className="text-2xl font-bold mb-6 text-center">🍀 Luck Wallet Club</h1>
+
       <div
         onClick={handleClick}
-        className="bg-yellow-300 hover:bg-yellow-400 active:bg-yellow-500 cursor-pointer shadow-lg rounded-2xl p-10 mb-4 transition-all select-none"
+        className="bg-yellow-300 hover:bg-yellow-400 active:bg-yellow-500 cursor-pointer shadow-lg rounded-2xl p-10 mb-4 transition-all select-none text-center text-black text-lg font-semibold"
       >
-        💼 Tıkla ve Puan Kazan!
+        {phrases[index]}
       </div>
-      <div className="text-lg font-semibold">Puanın: {points}</div>
-      {cooldown > 0 && (
-        <div className="text-sm text-red-600 mt-2">
-          Bekle: {cooldown} saniye...
-        </div>
-      )}
-      {telegramUser && (
-        <div className="mt-6 text-xs text-gray-500">
-          Giriş yapan: {telegramUser.first_name} (ID: {telegramUser.id})
+
+      {showBurcu && (
+        <div
+          className="font-bold text-red-600 mt-4 transition-all"
+          style={{ fontSize: `${burcuSize}px` }}
+        >
+          Burcu
         </div>
       )}
     </div>
